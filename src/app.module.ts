@@ -76,8 +76,7 @@ const ORMModules = [
         StratumV1JobsService,
         BTCPayService,
         BraiinsService,
-        ExternalSharesService,,
-        HighScoreService,
+        ExternalSharesService,
     ],
 })
 export class AppModule {
