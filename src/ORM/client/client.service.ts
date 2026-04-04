@@ -149,6 +149,7 @@ export class ClientService {
             .groupBy('client.clientName')
             .orderBy('MAX(client.bestDifficulty)', 'DESC')
             .limit(10)
+            .withDeleted()
             .getRawMany();
     }
 }
