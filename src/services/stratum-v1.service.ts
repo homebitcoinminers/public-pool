@@ -1,4 +1,4 @@
-import { HighScoreService } from '../ORM/high-score/high-score.service';
+import { HighScoreService } from '../ORM/high-scores/high-score.service';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'net';

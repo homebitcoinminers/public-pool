@@ -1,4 +1,4 @@
-import { HighScoreService } from '../ORM/high-score/high-score.service';
+import { HighScoreService } from '../ORM/high-scores/high-score.service';
 import { ConfigService } from '@nestjs/config';
 import * as bitcoinjs from 'bitcoinjs-lib';
 import { plainToInstance } from 'class-transformer';
@@ -561,7 +561,11 @@ export class StratumV1Client {
                     submissionDifficulty
                 );
                 if (submissionDifficulty > (await this.addressSettingsService.getSettings(this.clientAuthorization.address, true)).bestDifficulty) {
-                    await this.addressSettingsService.updateBestDifficulty(this.clientAuthorization.address, submissionDifficulty);
+                    await this.addressSettingsService.updateBestDifficulty(
+                        this.clientAuthorization.address, 
+                        submissionDifficulty,
+                        this.clientSubscription.userAgent
+                    );
                 }
             }
 

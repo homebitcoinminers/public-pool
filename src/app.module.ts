@@ -1,5 +1,5 @@
-import { HighScoreService } from './ORM/high-score/high-score.service';
-import { HighScoreModule } from './ORM/high-score/high-score.module';
+import { HighScoreService } from './ORM/high-scores/high-score.service';
+import { HighScoreModule } from './ORM/high-scores/high-score.module';
 import { HttpModule } from '@nestjs/axios';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
