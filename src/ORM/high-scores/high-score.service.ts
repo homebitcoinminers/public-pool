@@ -23,7 +23,7 @@ export class HighScoreService {
         }
     }
 
-    public async getTopScores(limit: number = 10) {
+    public async getTopScores(limit: number = 20) {
         return await this.highScoreRepository.find({
             select: {
                 clientName: true,

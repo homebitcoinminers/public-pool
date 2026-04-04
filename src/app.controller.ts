@@ -128,7 +128,7 @@ public async pool() {
     const CACHE_KEY = 'DEVICE_SCORES';
     const cachedResult = await this.cacheManager.get(CACHE_KEY);
     if (cachedResult != null) return cachedResult;
-    const scores = await this.highScoreService.getTopScoresByDevice(20);
+    const scores = await this.highScoreService.getTopScoresByDevice(40);
     await this.cacheManager.set(CACHE_KEY, scores, 10 * 60 * 1000);
     return scores;
   }
