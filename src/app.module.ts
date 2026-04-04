@@ -1,3 +1,5 @@
+import { HighScoreService } from './ORM/high-score/high-score.service';
+import { HighScoreModule } from './ORM/high-score/high-score.module';
 import { HttpModule } from '@nestjs/axios';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
@@ -35,7 +37,8 @@ const ORMModules = [
     TelegramSubscriptionsModule,
     BlocksModule,
     RpcBlocksModule,
-    ExternalSharesModule
+    ExternalSharesModule,
+    HighScoreModule
 ]
 
 @Module({
@@ -73,7 +76,8 @@ const ORMModules = [
         StratumV1JobsService,
         BTCPayService,
         BraiinsService,
-        ExternalSharesService,
+        ExternalSharesService,,
+        HighScoreService,
     ],
 })
 export class AppModule {

@@ -1,3 +1,4 @@
+import { HighScoreService } from './ORM/high-score/high-score.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Controller, Get, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
@@ -18,7 +19,8 @@ export class AppController {
     private readonly clientService: ClientService,
     private readonly clientStatisticsService: ClientStatisticsService,
     private readonly blocksService: BlocksService,
-    private readonly bitcoinRpcService: BitcoinRpcService
+    private readonly bitcoinRpcService: BitcoinRpcService,
+    private readonly highScoreService: HighScoreService
   ) { }
 
   @Get('info')
@@ -86,20 +88,19 @@ public async pool() {
   return data;
 }
   @Get('scores')
-public async scores() {
-  const CACHE_KEY = 'SCORES';
-  const cachedResult = await this.cacheManager.get(CACHE_KEY);
+  public async scores() {
+    const CACHE_KEY = 'SCORES';
+    const cachedResult = await this.cacheManager.get(CACHE_KEY);
 
-  if (cachedResult != null) {
-    return cachedResult;
-  }
+    if (cachedResult != null) {
+        return cachedResult;
+    }
 
-  const scores = await this.clientService.getTopScores();
+    const scores = await this.highScoreService.getTopScores(20);
 
-  // 10 min cache
-  await this.cacheManager.set(CACHE_KEY, scores, 10 * 60 * 1000);
+    await this.cacheManager.set(CACHE_KEY, scores, 10 * 60 * 1000);
 
-  return scores;
+    return scores;
 }
 
   @Get('info/chart')

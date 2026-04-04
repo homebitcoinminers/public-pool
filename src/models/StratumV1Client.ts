@@ -1,3 +1,4 @@
+import { HighScoreService } from '../ORM/high-score/high-score.service';
 import { ConfigService } from '@nestjs/config';
 import * as bitcoinjs from 'bitcoinjs-lib';
 import { plainToInstance } from 'class-transformer';
@@ -66,7 +67,8 @@ export class StratumV1Client {
         private readonly blocksService: BlocksService,
         private readonly configService: ConfigService,
         private readonly addressSettingsService: AddressSettingsService,
-        private readonly externalSharesService: ExternalSharesService
+        private readonly externalSharesService: ExternalSharesService,
+        private readonly highScoreService: HighScoreService
     ) {
 
         this.socket.on('data', (data: Buffer) => {
@@ -553,8 +555,13 @@ export class StratumV1Client {
             if (submissionDifficulty > this.entity.bestDifficulty) {
                 await this.clientService.updateBestDifficulty(this.extraNonceAndSessionId, submissionDifficulty);
                 this.entity.bestDifficulty = submissionDifficulty;
+                await this.highScoreService.updateHighScore(
+                    this.clientAuthorization.worker,
+                    this.clientSubscription.userAgent,
+                    submissionDifficulty
+                );
                 if (submissionDifficulty > (await this.addressSettingsService.getSettings(this.clientAuthorization.address, true)).bestDifficulty) {
-                    await this.addressSettingsService.updateBestDifficulty(this.clientAuthorization.address, submissionDifficulty, this.entity.userAgent);
+                    await this.addressSettingsService.updateBestDifficulty(this.clientAuthorization.address, submissionDifficulty);
                 }
             }
 
