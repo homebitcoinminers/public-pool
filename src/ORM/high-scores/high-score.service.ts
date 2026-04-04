@@ -23,7 +23,7 @@ export class HighScoreService {
         }
     }
 
-    public async getTopScores(limit: number = 20) {
+    public async getTopScores(limit: number = 10) {
         return await this.highScoreRepository.find({
             select: {
                 clientName: true,
@@ -34,5 +34,16 @@ export class HighScoreService {
             order: { bestDifficulty: 'DESC' },
             take: limit
         });
+    }
+
+    public async getTopScoresByDevice(limit: number = 20) {
+        return await this.highScoreRepository
+            .createQueryBuilder('hs')
+            .select('hs.userAgent', 'userAgent')
+            .addSelect('MAX(hs.bestDifficulty)', 'bestDifficulty')
+            .groupBy('hs.userAgent')
+            .orderBy('MAX(hs.bestDifficulty)', 'DESC')
+            .limit(limit)
+            .getRawMany();
     }
 }
