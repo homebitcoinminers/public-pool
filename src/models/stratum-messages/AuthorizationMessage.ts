@@ -1,5 +1,5 @@
 import { Expose, Transform } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
 import { eRequestMethod } from '../enums/eRequestMethod';
 import { IsBitcoinAddress } from '../validators/bitcoin-address.validator';
@@ -28,22 +28,22 @@ export class AuthorizationMessage extends StratumBaseMessage {
     })
     public worker: string;
 
-
     @Expose()
     @IsString()
     @Transform(({ value, key, obj, type }) => {
         return obj.params[1];
     })
     @MaxLength(64)
+    public password: string;
+
     @IsOptional()
-    public password?: string;
+    @IsNumber()
+    public ttl: number;
 
     constructor() {
         super();
         this.method = eRequestMethod.AUTHORIZE;
-
     }
-
 
     public response() {
         return {
