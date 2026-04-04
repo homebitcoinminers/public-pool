@@ -1,89 +1,46 @@
-## Description
+# HBM Public Pool
 
-A Nestjs and Typescript Bitcoin stratum mining server.
+A self-hosted solo Bitcoin mining pool based on [benjamin-wilson/public-pool](https://github.com/benjamin-wilson/public-pool).
 
-## Installation
+## Modifications from upstream
 
-```bash
-$ npm install
-```
+- **MRR compatibility** — Fixed `ttl` field in authorization message that caused Mining Rig Rentals workers to be rejected
+- **`/api/pool` endpoint** — Added pool stats endpoint compatible with miningpoolstats.stream
+- **`/api/scores` endpoint** — Top 10 all-time best difficulty per worker
+- **`/api/scores/device` endpoint** — Top 20 all-time best difficulty per device type
+- **Persistent high scores** — Dedicated `high_score_entity` table that survives container restarts
 
-create an new .env file in the root directory and configure it with the parameters in .env.example
+## API Endpoints
 
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production build
-$ npm run build
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# test coverage
-$ npm run test:cov
-```
-
-## Web interface
-
-See [public-pool-ui](https://github.com/benjamin-wilson/public-pool-ui)
+| Endpoint               | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| `/api/info`            | Current pool info, connected miners, user agents |
+| `/api/network`         | Bitcoin network info, block height, difficulty   |
+| `/api/pool`            | Pool stats for miningpoolstats.stream            |
+| `/api/scores`          | Top 10 all-time best difficulty per worker       |
+| `/api/scores/device`   | Top 20 all-time best difficulty per device type  |
+| `/api/client/:address` | Per-address worker stats                         |
+| `/api/info/chart`      | Hashrate chart data                              |
 
 ## Deployment
 
-Install pm2 (https://pm2.keymetrics.io/)
+See [HomeBitcoinMiners.au](https://homebitcoinminers.au) for the live instance.
 
-```bash
-$ pm2 start dist/main.js
-```
+Stratum endpoints:
+
+- `stratum+tcp://pool.homebitcoinminers.au:3333`
+- `stratum+tls://pool.homebitcoinminers.au:4333`
 
 ## Docker
 
-Build container:
-
 ```bash
-$ docker build -t public-pool .
+docker pull ghcr.io/homebitcoinminers/public-pool:latest
 ```
 
-Run container:
+## Environment Variables
 
-```bash
-$ docker container run --name public-pool --rm -p 3333:3333 -p 3334:3334 -p 8332:8332 -v .env:/public-pool/.env public-pool
-```
+See `.env.example` for configuration options.
 
-### Docker Compose
+## Credits
 
-Build container:
-```bash
-$ docker compose build
-```
-
-Run container:
-```bash
-$ docker compose up -d
-```
-
-The docker-compose binds to `127.0.0.1` by default. To expose the Stratum services on your server change:
-```diff
-    ports:
--      - "127.0.0.1:3333:3333/tcp"
--      - "127.0.0.1:3334:3334/tcp"
-+      - "3333"
-+      - "3334"
-```
-
-**note**: To successfully connect to the bitcoin RPC you will need to add
-
-```
-rpcallowip=172.16.0.0/12
-```
-
-to your bitcoin.conf.
+Based on [benjamin-wilson/public-pool](https://github.com/benjamin-wilson/public-pool) — all credit to the original author.
