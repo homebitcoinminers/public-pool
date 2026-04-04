@@ -36,7 +36,7 @@ export class HighScoreService {
         });
     }
 
-    public async getTopScoresByDevice(limit: number = 20) {
+    public async getTopScoresByDevice(limit: number = 40) {
         return await this.highScoreRepository
             .createQueryBuilder('hs')
             .select('hs.userAgent', 'userAgent')
