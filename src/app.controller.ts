@@ -1,4 +1,4 @@
-import { HighScoreService } from './ORM/high-score/high-score.service';
+import { HighScoreService } from './ORM/high-scores/high-score.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Controller, Get, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
