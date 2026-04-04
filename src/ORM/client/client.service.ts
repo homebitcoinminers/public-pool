@@ -140,5 +140,15 @@ export class ClientService {
             .getRawMany();
         return result;
     }
-
+    public async getTopScores() {
+        return await this.clientRepository
+          .createQueryBuilder('client')
+            .select('client.userAgent', 'userAgent')
+            .addSelect('client.clientName', 'clientName')
+            .addSelect('MAX(client.bestDifficulty)', 'bestDifficulty')
+            .groupBy('client.clientName')
+            .orderBy('MAX(client.bestDifficulty)', 'DESC')
+            .limit(10)
+            .getRawMany();
+    }
 }

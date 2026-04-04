@@ -85,6 +85,23 @@ public async pool() {
 
   return data;
 }
+  @Get('scores')
+public async scores() {
+  const CACHE_KEY = 'SCORES';
+  const cachedResult = await this.cacheManager.get(CACHE_KEY);
+
+  if (cachedResult != null) {
+    return cachedResult;
+  }
+
+  const scores = await this.clientService.getTopScores();
+
+  // 10 min cache
+  await this.cacheManager.set(CACHE_KEY, scores, 10 * 60 * 1000);
+
+  return scores;
+}
+
   @Get('info/chart')
   public async infoChart() {
 
