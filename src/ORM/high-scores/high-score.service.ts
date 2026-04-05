@@ -11,16 +11,30 @@ export class HighScoreService {
         private highScoreRepository: Repository<HighScoreEntity>
     ) { }
 
-    public async updateHighScore(clientName: string, userAgent: string, difficulty: number) {
+    public async updateHighScore(clientName: string, userAgent: string, difficulty: number): Promise<boolean> {
         const existing = await this.highScoreRepository.findOne({
             where: { clientName }
         });
 
         if (existing == null) {
             await this.highScoreRepository.save({ clientName, userAgent, bestDifficulty: difficulty });
+            return true;
         } else if (difficulty > existing.bestDifficulty) {
             await this.highScoreRepository.update({ clientName }, { bestDifficulty: difficulty, userAgent });
+            return true;
         }
+        return false;
+    }
+
+    public async checkDeviceHighScore(userAgent: string, difficulty: number): Promise<boolean> {
+        const result = await this.highScoreRepository
+            .createQueryBuilder('hs')
+            .select('MAX(hs.bestDifficulty)', 'bestDifficulty')
+            .where('hs.userAgent = :userAgent', { userAgent })
+            .getRawOne();
+
+        const currentBest = result?.bestDifficulty ?? 0;
+        return difficulty > currentBest;
     }
 
     public async getTopScores(limit: number = 20) {

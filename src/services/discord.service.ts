@@ -32,7 +32,6 @@ export class DiscordService implements OnModuleInit {
     private bot: Client;
     private commandCollection: Collection<string, IDiscordCommand>;
 
-
     constructor(private readonly configService: ConfigService) {
         if (process.env.NODE_APP_INSTANCE == null || process.env.NODE_APP_INSTANCE == '0') {
             this.token = this.configService.get('DISCORD_BOT_TOKEN');
@@ -60,7 +59,6 @@ export class DiscordService implements OnModuleInit {
     }
 
     async onModuleInit(): Promise<void> {
-
         if (process.env.NODE_APP_INSTANCE == null || process.env.NODE_APP_INSTANCE == '0') {
             if (this.bot == null) {
                 return;
@@ -97,42 +95,58 @@ export class DiscordService implements OnModuleInit {
             const rest = new REST().setToken(this.token);
             try {
                 console.log(`Started refreshing ${commands.length} application (/) commands.`);
-
-                // The put method is used to fully refresh all commands in the guild with the current set
                 const data = await rest.put(
                     Routes.applicationGuildCommands(this.clientId, this.guildId),
                     { body: commands.map(c => c.data.toJSON()) },
                 ) as any;
-
                 console.log(`Successfully reloaded ${data.length} application (/) commands.`);
             } catch (error) {
-                // And of course, make sure you catch and log any errors!
                 console.error(error);
             }
         }
     }
 
+    private formatDifficulty(difficulty: number): string {
+        if (difficulty >= 1e12) return `${(difficulty / 1e12).toFixed(2)}T`;
+        if (difficulty >= 1e9) return `${(difficulty / 1e9).toFixed(2)}G`;
+        if (difficulty >= 1e6) return `${(difficulty / 1e6).toFixed(2)}M`;
+        if (difficulty >= 1e3) return `${(difficulty / 1e3).toFixed(2)}K`;
+        return difficulty.toFixed(2);
+    }
+
     public async notifyRestarted() {
         if (process.env.NODE_APP_INSTANCE == null || process.env.NODE_APP_INSTANCE == '0') {
-            if (this.bot == null) {
-                return;
-            }
-
+            if (this.bot == null) return;
             const guild = await this.bot.guilds.fetch(this.guildId);
             const channel = await guild.channels.fetch(this.channelId) as TextChannel;
-            channel.send(`Server Restarted.`);
+            channel.send(`🔄 Pool Server Restarted.`);
         }
     }
 
     public async notifySubscribersBlockFound(height: number, block: Block, message: string) {
         if (process.env.NODE_APP_INSTANCE == null || process.env.NODE_APP_INSTANCE == '0') {
-            if (this.bot == null) {
-                return;
-            }
-
+            if (this.bot == null) return;
             const guild = await this.bot.guilds.fetch(this.guildId);
             const channel = await guild.channels.fetch(this.channelId) as TextChannel;
-            channel.send(`Block Found! Result: ${message}, Height: ${height}`);
+            channel.send(`⛏️ **BLOCK FOUND!** Height: **${height}** - Result: ${message}`);
+        }
+    }
+
+    public async notifyNewWorkerHighScore(clientName: string, userAgent: string, difficulty: number) {
+        if (process.env.NODE_APP_INSTANCE == null || process.env.NODE_APP_INSTANCE == '0') {
+            if (this.bot == null) return;
+            const guild = await this.bot.guilds.fetch(this.guildId);
+            const channel = await guild.channels.fetch(this.channelId) as TextChannel;
+            channel.send(`🏆 New Worker High Score! Worker: **${clientName}** (${userAgent}) - Difficulty: **${this.formatDifficulty(difficulty)}**`);
+        }
+    }
+
+    public async notifyNewDeviceHighScore(userAgent: string, difficulty: number) {
+        if (process.env.NODE_APP_INSTANCE == null || process.env.NODE_APP_INSTANCE == '0') {
+            if (this.bot == null) return;
+            const guild = await this.bot.guilds.fetch(this.guildId);
+            const channel = await guild.channels.fetch(this.channelId) as TextChannel;
+            channel.send(`🖥️ New Device High Score! Device: **${userAgent}** - Difficulty: **${this.formatDifficulty(difficulty)}**`);
         }
     }
 }

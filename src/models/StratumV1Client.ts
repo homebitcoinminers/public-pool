@@ -555,14 +555,39 @@ export class StratumV1Client {
             if (submissionDifficulty > this.entity.bestDifficulty) {
                 await this.clientService.updateBestDifficulty(this.extraNonceAndSessionId, submissionDifficulty);
                 this.entity.bestDifficulty = submissionDifficulty;
-                await this.highScoreService.updateHighScore(
+
+                // Check device high score BEFORE updating worker score
+                const isNewDeviceHighScore = await this.highScoreService.checkDeviceHighScore(
+                    this.clientSubscription.userAgent,
+                    submissionDifficulty
+                );
+
+                const isNewWorkerHighScore = await this.highScoreService.updateHighScore(
                     this.clientAuthorization.worker,
                     this.clientSubscription.userAgent,
                     submissionDifficulty
                 );
+
+                // Notify worker high score only if over 1G
+                if (isNewWorkerHighScore && submissionDifficulty >= 1e9) {
+                    await this.notificationService.notifyNewWorkerHighScore(
+                        this.clientAuthorization.worker,
+                        this.clientSubscription.userAgent,
+                        submissionDifficulty
+                    );
+                }
+
+                // Notify device high score
+                if (isNewDeviceHighScore) {
+                    await this.notificationService.notifyNewDeviceHighScore(
+                        this.clientSubscription.userAgent,
+                        submissionDifficulty
+                    );
+                }
+
                 if (submissionDifficulty > (await this.addressSettingsService.getSettings(this.clientAuthorization.address, true)).bestDifficulty) {
                     await this.addressSettingsService.updateBestDifficulty(
-                        this.clientAuthorization.address, 
+                        this.clientAuthorization.address,
                         submissionDifficulty,
                         this.clientSubscription.userAgent
                     );
