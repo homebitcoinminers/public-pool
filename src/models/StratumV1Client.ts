@@ -578,7 +578,7 @@ export class StratumV1Client {
                 }
 
                 // Notify device high score
-                if (isNewDeviceHighScore) {
+                if (isNewDeviceHighScore && submissionDifficulty >= 1e6) {
                     await this.notificationService.notifyNewDeviceHighScore(
                         this.clientSubscription.userAgent,
                         submissionDifficulty
