@@ -3,7 +3,7 @@ import * as bitcoinjs from 'bitcoinjs-lib';
 import * as merkle from 'merkle-lib';
 import * as merkleProof from 'merkle-lib/proof';
 import { combineLatest, delay, filter, from, interval, map, Observable, shareReplay, startWith, switchMap, tap } from 'rxjs';
-
+import { combineLatest, delay, filter, from, interval, map, Observable, shareReplay, startWith, switchMap, tap, catchError, EMPTY } from 'rxjs';
 import { MiningJob } from '../models/MiningJob';
 import { BitcoinRpcService } from './bitcoin-rpc.service';
 
@@ -44,12 +44,18 @@ export class StratumV1JobsService {
 
         this.newMiningJob$ = combineLatest([this.bitcoinRpcService.newBlock$, interval(60000).pipe(delay(this.delay), startWith(-1))]).pipe(
             switchMap(([miningInfo, interval]) => {
-                return from(this.bitcoinRpcService.getBlockTemplate(miningInfo.blocks)).pipe(map((blockTemplate) => {
-                    return {
-                        blockTemplate,
-                        interval
-                    }
-                }))
+                return from(this.bitcoinRpcService.getBlockTemplate(miningInfo.blocks)).pipe(
+                   map((blockTemplate) => {
+                        return {
+                           blockTemplate,
+                           interval
+                       };
+                    }),
+                    catchError((err) => {
+                       console.error('Failed to get block template, retrying on next block:', err.message);
+                       return EMPTY;
+                    })
+                );
             }),
             map(({ blockTemplate, interval }) => {
 
